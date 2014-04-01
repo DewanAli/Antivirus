@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace AntiVirus_Rootkits_
+{
+    public partial class Form1 : Form
+    {   // rookit variable set to 0
+        int rootkits;
+        //Array to find rootkits(Conains md5 values, sha values)
+        string[] rootkitlist = new string[] {  };
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {   
+            folderBrowserDialog1.ShowDialog();
+            //label1 name changes to the selected path
+            label1.Text = folderBrowserDialog1.SelectedPath;
+            // numer of rookits at the start
+            rootkits = 0;
+            //Label2 coded so for each rootkit found value increase by oone
+            label2.Text += rootkits.ToString();
+            //progess bar starts at 0
+            progressBar1.Value = 0;
+            listBox1.Items.Clear();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {   // scan button searches and lists files in the selected path
+            List<string> search = Directory.GetFiles(@folderBrowserDialog1.SelectedPath, "*.*").ToList();
+            //Progressbar tells it to count up and the files are scanned
+            progressBar1.Maximum = search.Count;
+            //array like loop
+
+            
+
+            foreach(string item in search)
+            {
+                try 
+                {   //reads files( this is being instantiated)
+                    StreamReader reader = new StreamReader(item);
+                    //reads the whole file
+                    string read = reader.ReadToEnd();
+
+                    foreach(string roots in rootkitlist)
+                    {   // searches string based on pattern.
+                        if (Regex.IsMatch(read,roots))
+                        {  
+                            //increase malware count by 1 for every time the if statment is true
+                            rootkits += 1;
+                            listBox1.Items.Add(item);
+                        }
+                        //progressbarr increases by 1 for each item scanned in the file or directory.
+                        progressBar1.Increment(1); 
+                    }
+
+                }
+                    //if rootkits increase by one then the catch runs and the if statments happens
+                catch(Exception roots)
+                {
+                    if (rootkits == 1)
+                    {
+                        Console.WriteLine("Rootkits found");  
+                    }
+                 
+                }
+            }
+        }
+    }
+}
